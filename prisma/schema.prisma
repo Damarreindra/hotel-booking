@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id String @id @default(uuid()) @map("id")
+  name String 
+  email String @unique
+  password String 
+  role Role @default(USER)
+  bookings Booking[]
+  isVerified Boolean @default(false)
+  verificationToken String? @unique
+}
+
+model Room{
+  id String @id @default(uuid()) @map("id")
+  number Int @unique
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+  roomTypeId String
+
+  price Float
+  status RoomStatus @default(AVAILABLE)
+  bookings Booking[]
+}
+
+
+model Booking{
+  id String @id @default(uuid()) @map("id")
+
+  user User @relation(fields: [userId], references: [id])
+  userId String 
+
+  room Room @relation(fields: [roomId], references: [id])
+  roomId String 
+
+  checkIn DateTime
+  checkOut DateTime
+
+  status BookingStatus @default(PENDING)
+  createdAt DateTime @default(now())
+}
+
+model RoomType{
+  id String @id @default(uuid()) @map("id")
+
+  roomType String
+  roomImg String
+  rooms Room[]
+}
+
+
+enum RoomStatus{
+  AVAILABLE
+  MAINTENANCE
+  BOOKED
+}
+
+enum BookingStatus{
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum Role{
+  USER
+  ADMIN
+}
