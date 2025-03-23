@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
           ...(guestNumber > 1 && {
             roomType: {
               is: {
-                room_type: { not: "SINGLE" },
+                roomType: { not: "SINGLE" },
               },
             },
           }),

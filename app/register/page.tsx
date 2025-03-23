@@ -1,9 +1,9 @@
 import Image from "next/image";
 import React from "react";
-import RegisterForm from "../components/RegisterForm";
-import AuthForm from "../components/AuthForm";
-import AuthImageContainer from "../components/AuthImageContainer";
-import AuthHeader from "../components/AuthHeader";
+import RegisterForm from "../../components/RegisterForm";
+import AuthForm from "../../components/AuthForm";
+import AuthImageContainer from "../../components/AuthImageContainer";
+import AuthHeader from "../../components/AuthHeader";
 function page() {
   return (
     <div className="bg-third w-full h-screen flex items-center justify-center px-52">

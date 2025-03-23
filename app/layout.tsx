@@ -1,6 +1,7 @@
+"use client";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import Provider from "./components/Provider";
+import Provider from "../components/Provider";
 
 const outfit = Outfit({
   variable: "--font-outfit-sans",

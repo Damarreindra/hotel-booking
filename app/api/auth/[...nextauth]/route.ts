@@ -38,6 +38,9 @@ export const authOptions: AuthOptions = {
           if (!passwordMatch) {
             throw new Error("Incorrect password");
           }
+          if (!user?.isVerified) {
+            throw new Error("User need verification");
+          }
           const accessToken = jwt.sign(
             { userId: user.id, email: user.email },
             jwtSecret,
@@ -53,7 +56,7 @@ export const authOptions: AuthOptions = {
           };
         } catch (error) {
           console.log("Error: ", error);
-          throw new Error("Authentication failed");
+          throw new Error(error);
         }
       },
     }),

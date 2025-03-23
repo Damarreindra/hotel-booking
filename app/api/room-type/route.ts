@@ -5,19 +5,30 @@ export async function POST(req: NextRequest) {
   const { type, img } = await req.json();
   if (!type || !img) {
     return new NextResponse(
-      JSON.stringify({ message: "Type and Image field are required" })
+      JSON.stringify({
+        message: "type and img field are required",
+      })
     );
   }
   const roomType = await prisma.roomType.create({
     data: {
-      room_type: type,
-      room_img: img,
+      roomType: type,
+      roomImg: img,
     },
   });
   return new NextResponse(
     JSON.stringify({
       message: "Roomtype Added",
       roomType,
+    })
+  );
+}
+
+export async function GET() {
+  const roomTypes = await prisma.roomType.findMany();
+  return new NextResponse(
+    JSON.stringify({
+      roomTypes,
     })
   );
 }

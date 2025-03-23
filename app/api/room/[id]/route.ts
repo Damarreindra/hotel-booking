@@ -6,7 +6,7 @@ export async function GET(req: NextRequest, { params }: IParams) {
   try {
     const { id } = await params;
     const room = await prisma.room.findUnique({
-      where: { id },
+      where: { id: Number(id) },
     });
     if (!room) {
       return new NextResponse(JSON.stringify({ message: "Room not found" }), {
@@ -26,7 +26,7 @@ export async function DELETE(req: NextRequest, { params }: IParams) {
   try {
     const { id } = await params;
     const existedRoom = await prisma.room.findUnique({
-      where: { id },
+      where: { id: Number(id) },
     });
 
     if (!existedRoom) {
@@ -34,7 +34,7 @@ export async function DELETE(req: NextRequest, { params }: IParams) {
         status: 404,
       });
     }
-    await prisma.room.delete({ where: { id } });
+    await prisma.room.delete({ where: { id: Number(id) } });
     return new NextResponse(
       JSON.stringify({ message: "Room deleted successfully" }),
       { status: 200 }
@@ -49,19 +49,10 @@ export async function DELETE(req: NextRequest, { params }: IParams) {
 export async function PUT(req: NextRequest, { params }: IParams) {
   try {
     const { id } = await params;
-    const { number, price, status } = await req.json();
-    if (!number || !price || !status) {
-      return new NextResponse(
-        JSON.stringify({
-          message: "Number, Type, Price, Status of room are required",
-        }),
-        {
-          status: 500,
-        }
-      );
-    }
+    const { number, price, status, roomTypeId } = await req.json();
+
     const existedRoom = await prisma.room.findUnique({
-      where: { id },
+      where: { id: Number(id) },
     });
 
     if (!existedRoom) {
@@ -69,19 +60,31 @@ export async function PUT(req: NextRequest, { params }: IParams) {
         status: 404,
       });
     }
-
-    const updatedRoom = await prisma.room.update({
-      where: { id },
-      data: {
-        number,
-        price,
-        status,
-      },
-    });
-    return new NextResponse(
-      JSON.stringify({ message: "Room updated successfully", updatedRoom }),
-      { status: 200 }
-    );
+    if (number && price && roomTypeId) {
+      const updatedRoom = await prisma.room.update({
+        where: { id: Number(id) },
+        data: {
+          number,
+          price,
+          roomTypeId,
+        },
+      });
+      return new NextResponse(
+        JSON.stringify({ message: "Room updated successfully", updatedRoom }),
+        { status: 200 }
+      );
+    } else {
+      const updatedRoom = await prisma.room.update({
+        where: { id: Number(id) },
+        data: {
+          status,
+        },
+      });
+      return new NextResponse(
+        JSON.stringify({ message: "Room updated successfully", updatedRoom }),
+        { status: 200 }
+      );
+    }
   } catch (error: any) {
     return new NextResponse(JSON.stringify({ message: error.message }), {
       status: 500,
