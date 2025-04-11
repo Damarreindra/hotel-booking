@@ -1,6 +1,7 @@
 import { IBooking } from "@/types/IBooking";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { baseUrl } from "@/app/utils/baseUrl";
 
 const midtransKey = process.env.MIDTRANS_SERVER_API_KEY;
 
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
     const numericUserId = Number(userId);
     const numericRoomId = Number(roomId);
 
-    if (checkInDate > checkOutDate || checkInDate === checkOutDate) {
+    if (checkInDate >= checkOutDate) {
       return new NextResponse(
         JSON.stringify({
           message: "Check out date must be later than check in",
@@ -34,9 +35,19 @@ export async function POST(req: NextRequest) {
     const customer = await prisma.user.findUnique({
       where: { id: numericUserId },
     });
+
     const room = await prisma.room.findUnique({
       where: { id: numericRoomId },
     });
+
+    if (!room) {
+      return new NextResponse(
+        JSON.stringify({
+          message: "Room not found",
+        }),
+        { status: 404 }
+      );
+    }
 
     const existedBooking = await prisma.booking.findFirst({
       where: {
@@ -62,28 +73,27 @@ export async function POST(req: NextRequest) {
         })
       );
     }
-
+    const orderId = crypto.randomUUID();
     const booking = await prisma.booking.create({
       data: {
         userId: numericUserId,
-
         roomId: numericRoomId,
         checkIn: new Date(checkIn),
         checkOut: new Date(checkOut),
+        orderId,
       },
     });
 
     const midtransClient = require("midtrans-client");
-    // Create Snap API instance
+
     let snap = new midtransClient.Snap({
-      // Set to true if you want Production Environment (accept real transaction).
       isProduction: false,
       serverKey: midtransKey,
     });
 
     let parameter = {
       transaction_details: {
-        order_id: crypto.randomUUID(),
+        order_id: orderId,
         gross_amount: room?.price,
       },
       credit_card: {
@@ -93,29 +103,70 @@ export async function POST(req: NextRequest) {
         name: customer?.name,
         email: customer?.email,
       },
+      callbacks: {
+        finish: `${baseUrl}/payment?orderId=${orderId}`,
+        unfinish: `${baseUrl}/payment?orderId=${orderId}`,
+        error: `${baseUrl}/booking`,
+      },
     };
 
     const transaction = await snap.createTransaction(parameter);
     const transactionToken = transaction.token;
 
-    const updateBooking = await prisma.booking.update({
-      where: { id: booking.id },
-      data: { transactionToken },
+    const newPayment = await prisma.payment.create({
+      data: {
+        amount: room.price,
+        orderId,
+        bookingId: booking.id,
+        transactionToken,
+      },
     });
 
-    if (!updateBooking) {
+    if (!newPayment) {
       await prisma.booking.delete({
         where: { id: booking.id },
       });
     }
 
     return new NextResponse(
-      JSON.stringify({ message: "Booking successful", updateBooking }),
+      JSON.stringify({
+        message: "Booking successful",
+        booking,
+        payment: newPayment,
+      }),
       { status: 201 }
     );
   } catch (error: any) {
     return new NextResponse(JSON.stringify({ message: error.message }), {
       status: 500,
     });
+  }
+}
+
+export async function GET(req: NextResponse) {
+  try {
+    const bookings = await prisma.booking.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+        payment: true,
+      },
+    });
+    return new NextResponse(
+      JSON.stringify({
+        bookings,
+      }),
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return new NextResponse(
+      JSON.stringify({
+        message: error.message,
+      }),
+      { status: 400 }
+    );
   }
 }

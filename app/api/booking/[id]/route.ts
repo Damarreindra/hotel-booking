@@ -5,10 +5,17 @@ import { NextRequest, NextResponse } from "next/server";
 export async function PUT(req: NextRequest, { params }: IParams) {
   try {
     const { id } = params;
-    const { roomId, checkIn, checkOut, status } = await req.json();
+    const {
+      roomId,
+      checkIn,
+      checkOut,
+      bookingStatus,
+      paymentId,
+      paymentStatus,
+    } = await req.json();
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
-
+    const bookingId = Number(id);
     if (checkOutDate <= checkInDate) {
       return new NextResponse(
         JSON.stringify({
@@ -18,25 +25,59 @@ export async function PUT(req: NextRequest, { params }: IParams) {
       );
     }
 
-    const existedRoom = await prisma.booking.findUnique({ where: { id } });
-    if (!existedRoom) {
-      return new NextResponse(JSON.stringify({ message: "Room not found" }), {
-        status: 404,
-      });
-    }
-
-    await prisma.booking.update({
-      where: { id },
-      data: {
-        roomId,
-        checkIn: checkInDate,
-        checkOut: checkOutDate,
-        status,
+    const existedBooking = await prisma.booking.findUnique({
+      where: {
+        id: Number(id),
       },
     });
-    return new NextResponse(JSON.stringify({ message: "Booking updated" }), {
-      status: 200,
-    });
+    if (!existedBooking) {
+      return new NextResponse(
+        JSON.stringify({ message: "Booking not found" }),
+        {
+          status: 404,
+        }
+      );
+    }
+
+    if (paymentId && paymentStatus) {
+      await prisma.booking.update({
+        where: {
+          id: bookingId,
+        },
+        data: {
+          roomId,
+          checkIn: checkInDate,
+          checkOut: checkOutDate,
+          status: bookingStatus,
+          payment: {
+            update: {
+              where: { id: paymentId },
+              data: {
+                status: paymentStatus,
+              },
+            },
+          },
+        },
+      });
+      return new NextResponse(JSON.stringify({ message: "Booking updated" }), {
+        status: 200,
+      });
+    } else {
+      await prisma.booking.update({
+        where: {
+          id: bookingId,
+        },
+        data: {
+          roomId,
+          checkIn: checkInDate,
+          checkOut: checkOutDate,
+          status: bookingStatus,
+        },
+      });
+      return new NextResponse(JSON.stringify({ message: "Booking updated" }), {
+        status: 200,
+      });
+    }
   } catch (error: any) {
     return new NextResponse(JSON.stringify({ message: error.message }), {
       status: 404,

@@ -1,7 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/AppSidebar";
-import Navbar from "@/components/Navbar";
-import DashboardNavbar from "@/components/DashboardNavbar";
+import Navbar from "@/components/navbar/LandingNavbar";
+import DashboardNavbar from "@/components/navbar/DashboardNavbar";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function Layout({ children }: { children: React.ReactNode }) {

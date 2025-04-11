@@ -51,10 +51,10 @@ export const authOptions: AuthOptions = {
             id: user.id.toString(),
             email: user.email,
             name: user.name,
-
+            role: user.role,
             accessToken,
           };
-        } catch (error) {
+        } catch (error: any) {
           console.log("Error: ", error);
           throw new Error(error);
         }
@@ -70,12 +70,14 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.accessToken = user.accessToken;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }: any) {
       session.user = token;
       session.accessToken = token.accessToken;
+      session.role = token.role;
       return session;
     },
   },

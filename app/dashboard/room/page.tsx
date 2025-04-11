@@ -1,8 +1,8 @@
-import AddRoomForm from "@/components/AddRoomForm";
+import AddRoomForm from "@/components/form/AddRoomForm";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 
-import { columns, Room } from "@/components/roomTable/Columns";
-import { DataTable } from "@/components/roomTable/Data-table";
+import { columns, Room } from "@/components/tables/roomTable/Columns";
+import { DataTable } from "@/components/tables/roomTable/Data-table";
 import { Metadata } from "next";
 import React from "react";
 import {
@@ -25,21 +25,11 @@ import {
   NavigationMenuTrigger,
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
+import { getRooms } from "@/lib/fetch";
 
 export const metadata: Metadata = {
   title: "Stay Ease | Room Management",
 };
-
-async function getRooms(): Promise<Room[]> {
-  const res = await fetch("http://localhost:3000/api/room");
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch rooms");
-  }
-
-  const data: Room[] = await res.json();
-  return data;
-}
 
 export default async function BlankPage() {
   const { rooms }: any = await getRooms();
@@ -50,26 +40,7 @@ export default async function BlankPage() {
       <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
         <div className="mx-auto w-full">
           <div className="flex flex-row justify-between">
-            <div>
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <NavigationMenuLink>Link</NavigationMenuLink>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <NavigationMenuLink>Link</NavigationMenuLink>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
+            <div></div>
             <div className="">
               <Dialog>
                 <DialogTrigger>
@@ -88,7 +59,7 @@ export default async function BlankPage() {
             </div>
           </div>
 
-          <div className="container mx-auto py-10 mt-3">
+          <div className="container mx-auto">
             <DataTable columns={columns} data={rooms} />
           </div>
         </div>

@@ -34,10 +34,11 @@ model Booking {
   userId   Int
   room     Room     @relation(fields: [roomId], references: [id])
   roomId   Int
+  orderId       String @unique
   checkIn  DateTime
   checkOut DateTime
-  transactionToken String? 
-  status   BookingStatus @default(PENDING)
+  status      BookingStatus @default(PENDING)
+  payment Payment[]
   createdAt DateTime @default(now())
 }
 
@@ -45,6 +46,7 @@ model RoomType {
   id         Int     @id @default(autoincrement()) @map("id")
   roomType   String
   roomImg    String
+  capacity   Int  @default(1)
   rooms      Room[]
   facilities RoomFacility[]
 }
@@ -63,6 +65,25 @@ model RoomFacility{
   facilityId Int 
  @@id([roomTypeId, facilityId])
 }
+
+model Payment {
+  id           Int      @id @default(autoincrement()) @map("id")
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+  bookingId    Int
+  orderId       String @unique
+  amount       Float
+  status       TransactionStatus @default(PENDING)
+  transactionToken String? 
+  createdAt    DateTime @default(now())
+}
+
+enum TransactionStatus {
+  PENDING
+  PAID
+  CANCELLED 
+}
+
+
 
 
 

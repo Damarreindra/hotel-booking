@@ -52,7 +52,7 @@ const rooms = [
 export function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarContent>
+      <SidebarContent className="bg-white">
         <div className="py-3 px-3">
           <Image src={Logo} width={100} height={100} alt={"logo"} />
         </div>

@@ -7,6 +7,17 @@ export async function GET(req: NextRequest, { params }: IParams) {
     const { id } = await params;
     const room = await prisma.room.findUnique({
       where: { id: Number(id) },
+      include: {
+        roomType: {
+          include: {
+            facilities: {
+              include: {
+                facility: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!room) {
       return new NextResponse(JSON.stringify({ message: "Room not found" }), {

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
-import RegisterForm from "../../components/RegisterForm";
-import AuthForm from "../../components/AuthForm";
+import RegisterForm from "../../components/form/RegisterForm";
+import AuthForm from "../../components/form/AuthForm";
 import AuthImageContainer from "../../components/AuthImageContainer";
 import AuthHeader from "../../components/AuthHeader";
 function page() {

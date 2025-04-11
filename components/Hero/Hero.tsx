@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../Navbar";
+import Navbar from "../navbar/LandingNavbar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -24,9 +24,11 @@ function Hero() {
             </p>
             <div className="flex flex-row gap-3">
               <Link href={"/register"}>
-                <Button className="bg-third rounded px-8 py-6">Sign Up</Button>
+                <Button className="bg-third rounded px-8 py-6 text-white">
+                  Sign Up
+                </Button>
               </Link>
-              <Button className="bg-gray-300 text-primary rounded px-8 py-6">
+              <Button className="bg-gray-300 text-primary rounded px-8 py-6 ">
                 Search Room
               </Button>
             </div>

@@ -12,6 +12,8 @@ export async function authMiddleware(req: NextRequest) {
   }
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET!);
+    console.log(verified);
+
     if (verified) {
       return null;
     }

@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   // const validateRequest = await authMiddleware(req);
   // if (validateRequest) return validateRequest;
+
   const { searchParams } = new URL(req.url);
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
@@ -39,7 +40,7 @@ export async function GET(req: NextRequest) {
           ...(guestNumber > 1 && {
             roomType: {
               is: {
-                roomType: { not: "SINGLE" },
+                roomType: { not: "Single" },
               },
             },
           }),
